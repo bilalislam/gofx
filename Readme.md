@@ -46,3 +46,7 @@ client := &repository.Client{
 
 		err := client.Add(d.Body, 0)
 ```
+
+#####references
+* https://github.com/tmrts/go-patterns
+* http://blog.ralch.com/tutorial/design-patterns/golang-bridge/
