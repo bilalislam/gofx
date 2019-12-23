@@ -16,10 +16,14 @@ Consumer
 ---------------
 ```go
 func main() {
-	c, err := consumer.NewConsumer(*uri, *exchange, *exchangeType, *queue, *bindingKey, *consumerTag)
-	if err != nil {
-		log.Fatalf("%s", err)
-	}
+	c, err := consumer.NewConsumer(consumer.Request{
+    		Uri:          *uri,
+    		Exchange:     *exchange,
+    		ExchangeType: *exchangeType,
+    		Queue:        *queue,
+    		RoutingKey:   *bindingKey,
+    		ConsumerTag:  *consumerTag,
+    	})
 
 	messages, err := c.Consume(*queue)
 	for d := range messages {
