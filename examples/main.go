@@ -2,10 +2,8 @@ package main
 
 import (
 	"flag"
-	"github.com/go-redis/redis"
+	"fmt"
 	"gofx/consumer"
-	"gofx/repository"
-	"gofx/repository/clients"
 	"log"
 )
 
@@ -17,6 +15,7 @@ var (
 	bindingKey   = flag.String("key", "test-key", "AMQP binding key")
 	consumerTag  = flag.String("consumer-tag", "simple-consumer", "AMQP consumer tag (should not be blank)")
 	environment  = flag.String("environment", "dev", "os environment")
+	qos          = flag.Int("qos", 10, "qos")
 )
 
 func init() {
@@ -24,40 +23,35 @@ func init() {
 }
 
 func main() {
-
-	c, err := consumer.NewConsumer(consumer.Request{
+	messages, err := consumer.NewConsumer(consumer.Request{
 		Uri:          *uri,
 		Exchange:     *exchange,
 		ExchangeType: *exchangeType,
 		Queue:        *queue,
 		RoutingKey:   *bindingKey,
 		ConsumerTag:  *consumerTag,
+		Qos:          *qos,
 	})
 
 	if err != nil {
-		log.Fatalf("%s", err)
+		fmt.Errorf("%s", err)
 	}
 
-	messages, err := c.Consume(*queue)
-	for d := range messages {
-		log.Printf(
-			"got %dB delivery: [%v] %s",
-			len(d.Body),
-			d.DeliveryTag,
-			d.Body,
-		)
+	if err != nil {
+		log.Fatalf("Failed to create listener %s", err)
+	}
 
-		client := &repository.Client{
-			Context: &clients.RedisClient{
-				Conn: redis.NewClient(&redis.Options{}),
-			},
+	defer close(messages)
+
+	for {
+		log.Println("Listening for messages...")
+
+		m, ok := <-messages
+		if !ok {
+			log.Println("Stop listening messages!")
 		}
 
-		err := client.Add(d.Body, 0)
-		if err == nil {
-			_ = d.Ack(true)
-		} else {
-			panic(err)
-		}
+		m.Ack(false)
+		log.Println("Message was consumed")
 	}
 }
