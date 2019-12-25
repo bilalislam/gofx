@@ -2,7 +2,8 @@ package handler
 
 import (
 	"github.com/labstack/echo/v4"
-	echoSwagger "github.com/swaggo/echo-swagger"
+	"github.com/swaggo/echo-swagger"
+	_ "gofx/examples/api/docs"
 	"gofx/repository"
 	"net/http"
 )
@@ -17,9 +18,17 @@ func NewHandler(e *echo.Echo, client repository.Client) {
 		repository: client,
 	}
 
+	v1 := e.Group("/api/v1")
+	{
+		baskets := v1.Group("/basket")
+		{
+			baskets.GET(":id", handler.getBasketById)
+		}
+	}
+
 	e.GET("/health-check", healthCheck)
-	e.GET("/users/:id/basket", handler.getBasketById)
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
+
 }
 
 func healthCheck(c echo.Context) error {
