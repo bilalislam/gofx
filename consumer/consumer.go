@@ -15,7 +15,6 @@ type Request struct {
 	ConsumerTag  string
 }
 
-
 type Consumer struct {
 	conn    *amqp.Connection
 	channel *amqp.Channel
@@ -84,6 +83,8 @@ func NewConsumer(request Request) (*Consumer, error) {
 		return nil, fmt.Errorf("Queue Bind: %s", err)
 	}
 
+	c.Qos(10,0,false)
+
 	return c, nil
 }
 
@@ -97,4 +98,8 @@ func (c *Consumer) Consume(queue string) (<-chan amqp.Delivery, error) {
 		false, // noWait
 		nil,   // arguments
 	)
+}
+
+func (c *Consumer) Qos(prefetchCount, prefetchSize int, global bool) {
+	c.channel.Qos(prefetchCount, prefetchSize, global)
 }

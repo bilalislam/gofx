@@ -2,10 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/go-redis/redis"
 	"gofx/consumer"
-	"gofx/repository"
-	"gofx/repository/clients"
 	"log"
 )
 
@@ -47,7 +44,7 @@ func main() {
 			d.Body,
 		)
 
-		client := &repository.Client{
+		/*client := &repository.Client{
 			Context: &clients.RedisClient{
 				Conn: redis.NewClient(&redis.Options{}),
 			},
@@ -58,6 +55,6 @@ func main() {
 			_ = d.Ack(true)
 		} else {
 			panic(err)
-		}
+		}*/
 	}
 }
