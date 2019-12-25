@@ -82,3 +82,13 @@ CMD ["./simple-consumer"]
 EXPOSE 8080
 
 ```
+
+using swaggo
+-------------------
+```sh
+$ go get -u github.com/swaggo/swag/cmd/swag
+$ swag init -g main.go
+```
+
+#####references
+1 . https://github.com/swaggo/swag
